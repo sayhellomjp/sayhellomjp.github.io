@@ -1,0 +1,756 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JavaScript," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="转载自伯乐在线http://blog.jobbole.com/81018/  讲解this指针的原理是个很复杂的问题，如果我们从javascript里this的实现机制来说明this，很多朋友可能会越来越糊涂，因此本篇打算换一个思路从应用的角度来讲解this指针，从这个角度理解this指针更加有现实意义。 下面我们看看在java语言里是如何使用this指针的，代码如下： 123456789101">
+<meta name="keywords" content="JavaScript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="javascript技术难点（三）之this、new、apply和call详解">
+<meta property="og:url" content="http://yoursite.com/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/index.html">
+<meta property="og:site_name" content="M'S BLOG">
+<meta property="og:description" content="转载自伯乐在线http://blog.jobbole.com/81018/  讲解this指针的原理是个很复杂的问题，如果我们从javascript里this的实现机制来说明this，很多朋友可能会越来越糊涂，因此本篇打算换一个思路从应用的角度来讲解this指针，从这个角度理解this指针更加有现实意义。 下面我们看看在java语言里是如何使用this指针的，代码如下： 123456789101">
+<meta property="og:image" content="http://yoursite.com/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/1.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/2.jpg">
+<meta property="og:updated_time" content="2017-04-13T04:34:25.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="javascript技术难点（三）之this、new、apply和call详解">
+<meta name="twitter:description" content="转载自伯乐在线http://blog.jobbole.com/81018/  讲解this指针的原理是个很复杂的问题，如果我们从javascript里this的实现机制来说明this，很多朋友可能会越来越糊涂，因此本篇打算换一个思路从应用的角度来讲解this指针，从这个角度理解this指针更加有现实意义。 下面我们看看在java语言里是如何使用this指针的，代码如下： 123456789101">
+<meta name="twitter:image" content="http://yoursite.com/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/"/>
+
+
+
+
+
+  <title> javascript技术难点（三）之this、new、apply和call详解 | M'S BLOG </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">M'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="m">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="M'S BLOG">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                javascript技术难点（三）之this、new、apply和call详解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-13T11:14:39+08:00">
+                2017-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>转载自伯乐在线<a href="http://blog.jobbole.com/81018/" target="_blank" rel="external">http://blog.jobbole.com/81018/</a></p>
+</blockquote>
+<p>讲解this指针的原理是个很复杂的问题，如果我们从javascript里this的实现机制来说明this，很多朋友可能会越来越糊涂，因此本篇打算换一个思路从应用的角度来讲解this指针，从这个角度理解this指针更加有现实意义。</p>
+<p>下面我们看看在java语言里是如何使用this指针的，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</div><div class="line">    </div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line">    <span class="keyword">private</span> String sex;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</div><div class="line">    <span class="keyword">private</span> String job;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name, String sex, <span class="keyword">int</span> age, String job)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>();</div><div class="line">        <span class="keyword">this</span>.name = name;</div><div class="line">        <span class="keyword">this</span>.sex = sex;</div><div class="line">        <span class="keyword">this</span>.age = age;</div><div class="line">        <span class="keyword">this</span>.job = job;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">showPerson</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"姓名："</span> + <span class="keyword">this</span>.name);</div><div class="line">        System.out.println(<span class="string">"性别："</span> + <span class="keyword">this</span>.sex);</div><div class="line">        System.out.println(<span class="string">"年龄："</span> + <span class="keyword">this</span>.age);</div><div class="line">        System.out.println(<span class="string">"工作："</span> + <span class="keyword">this</span>.job);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printInfo</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.showPerson();</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        Person person = <span class="keyword">new</span> Person(<span class="string">"马云"</span>, <span class="string">"男"</span>, <span class="number">46</span>, <span class="string">"董事长"</span>);</div><div class="line">        person.printInfo();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//姓名：马云</span></div><div class="line"><span class="comment">//性别：男</span></div><div class="line"><span class="comment">//年龄：46</span></div><div class="line"><span class="comment">//工作：董事长</span></div></pre></td></tr></table></figure>
+<p>上面的代码执行后没有任何问题，下面我修改下这个代码，加一个静态的方法，静态方法里使用this指针调用类里的属性，如下图所示：</p>
+<p><img src="/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/1.jpg" alt="1"></p>
+<p>我们发现IDE会报出语法错误“Cannot use this in a static context”，this指针在java语言里是不能使用在静态的上下文里的。</p>
+<p>在面向对象编程里有两个重要的概念：<strong>一个是类，一个是实例化的对象</strong>，类是一个抽象的概念，用个形象的比喻表述的话，类就像一个模具，而实例化对象就是通过这个模具制造出来的产品，实例化对象才是我们需要的实实在在的东西，类和实例化对象有着很密切的关系，但是在使用上类的功能是绝对不能取代实例化对象，就像模具和模具制造的产品的关系，二者的用途是不相同的。</p>
+<p>有上面代码我们可以看到，<strong>this指针在java语言里只能在实例化对象里使用，this指针等于这个被实例化好的对象</strong>，而this后面加上点操作符，点操作符后面的东西就是this所拥有的东西，例如：姓名，工作，手，脚等等。</p>
+<p>其实<strong>javascript里的this指针逻辑上的概念也是实例化对象</strong>，这一点和java语言里的this指针是一致的，但是javascript里的this指针却比java里的this难以理解的多，究其根本原因我个人觉得有三个原因：</p>
+<p><strong>原因一：javascript是一个函数编程语言，怪就怪在它也有this指针，说明这个函数编程语言也是面向对象的语言，说的具体点，javascript里的函数是一个高阶函数，编程语言里的高阶函数是可以作为对象传递的，同时javascript里的函数还有可以作为构造函数，这个构造函数可以创建实例化对象，结果导致方法执行时候this指针的指向会不断发生变化，很难控制。</strong></p>
+<p><strong>原因二：javascript里的全局作用域对this指针有很大的影响，由上面java的例子我们看到，this指针只有在使用new操作符后才会生效，但是javascript里的this在没有进行new操作也会生效，这时候this往往会指向全局对象window。</strong></p>
+<p><strong>原因三：javascript里call和apply操作符可以随意改变this指向，这看起来很灵活，但是这种不合常理的做法破坏了我们理解this指针的本意，同时也让写代码时候很难理解this的真正指向</strong></p>
+<p>上面的三个原因都违反了传统this指针使用的方法，它们都拥有有别于传统this原理的理解思路，而在实际开发里三个原因又往往会交织在一起，这就更加让人迷惑不解了，今天我要为大家理清这个思路，其实javascript里的this指针有一套固有的逻辑，我们理解好这套逻辑就能准确的掌握好this指针的使用。</p>
+<p>我们先看看下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>.a = <span class="string">"aaa"</span>;</div><div class="line"><span class="built_in">console</span>.log(a);<span class="comment">//aaa</span></div><div class="line"><span class="built_in">console</span>.log(<span class="keyword">this</span>.a);<span class="comment">//aaa</span></div><div class="line"><span class="built_in">console</span>.log(<span class="built_in">window</span>.a);<span class="comment">//aaa</span></div><div class="line"><span class="built_in">console</span>.log(<span class="keyword">this</span>);<span class="comment">// window</span></div><div class="line"><span class="built_in">console</span>.log(<span class="built_in">window</span>);<span class="comment">// window</span></div><div class="line"><span class="built_in">console</span>.log(<span class="keyword">this</span> == <span class="built_in">window</span>);<span class="comment">// true</span></div><div class="line"><span class="built_in">console</span>.log(<span class="keyword">this</span> === <span class="built_in">window</span>);<span class="comment">// true</span></div></pre></td></tr></table></figure>
+<p>在script标签里我们可以直接使用this指针，this指针就是window对象，我们看到即使使用三等号它们也是相等的。全局作用域常常会干扰我们很好的理解javascript语言的特性，这种干扰的本质就是：</p>
+<p><strong>在javascript语言里全局作用域可以理解为window对象，记住window是对象而不是类，也就是说window是被实例化的对象，这个实例化的过程是在页面加载时候由javascript引擎完成的，整个页面里的要素都被浓缩到这个window对象，因为程序员无法通过编程语言来控制和操作这个实例化过程，所以开发时候我们就没有构建这个this指针的感觉，常常会忽视它，这就是干扰我们在代码里理解this指针指向window的情形。</strong></p>
+<p>干扰的本质还和function的使用有关，我们看看下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">ftn01</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"I am ftn01!"</span>);</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> ftn02 = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"I am ftn02!"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面是我们经常使用的<strong>两种定义函数的方式，第一种定义函数的方式在javascript语言称作声明函数，第二种定义函数的方式叫做函数表达式，</strong>这两种方式我们通常认为是等价的，但是它们其实是有区别的，而这个区别常常会让我们混淆this指针的使用，我们再看看下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">console</span>.log(ftn01);<span class="comment">//ftn01()  注意：在firebug下这个打印结果是可以点击，点击后会显示函数的定义</span></div><div class="line"><span class="built_in">console</span>.log(ftn02);<span class="comment">// undefined</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">ftn01</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"I am ftn01!"</span>);</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> ftn02 = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"I am ftn02!"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这又是一段没有按顺序执行的代码，先看看ftn02，打印结果是undefined，undefined我在前文里讲到了，在内存的栈区已经有了变量的名称，但是没有栈区的变量值，同时堆区是没有具体的对象，这是javascript引擎在预处理（群里东方说预处理比预加载更准确，我同意他的说法，以后文章里我都写为预处理）扫描变量定义所致，但是ftn01的打印结果很令人意外，既然打印出完成的函数定义了，而且代码并没有按顺序执行，这只能说明一个问题：</p>
+<p><strong>在javascript语言通过声明函数方式定义函数，javascript引擎在预处理过程里就把函数定义和赋值操作都完成了，在这里我补充下javascript里预处理的特性，其实预处理是和执行环境相关，在上篇文章里我讲到执行环境有两大类：全局执行环境和局部执行环境，执行环境是通过上下文变量体现的，其实这个过程都是在函数执行前完成，预处理就是构造执行环境的另一个说法，总而言之预处理和构造执行环境的主要目的就是明确变量定义，分清变量的边界，但是在全局作用域构造或者说全局变量预处理时候对于声明函数有些不同，声明函数会将变量定义和赋值操作同时完成，因此我们看到上面代码的运行结果。由于声明函数都会在全局作用域构造时候完成，因此声明函数都是window对象的属性，这就说明为什么我们不管在哪里声明函数，声明函数最终都是属于window对象的原因了。</strong></p>
+<p>关于函数表达式的写法还有秘密可以探寻，我们看下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">ftn03</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> ftn04 = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>);<span class="comment">// window</span></div><div class="line">    &#125;;</div><div class="line">    ftn04();</div><div class="line">&#125;</div><div class="line">ftn03();</div></pre></td></tr></table></figure>
+<p>运行结果我们发现ftn04虽然在ftn03作用域下，但是执行它里面的this指针也是指向window，其实函数表达式的写法我们大多数更喜欢在函数内部写，因为声明函数里的this指向window这已经不是秘密，但是函数表达式的this指针指向window却是常常被我们所忽视，特别是当它被写在另一个函数内部时候更加如此。</p>
+<p><strong>其实在javascript语言里任何匿名函数都是属于window对象，它们也都是在全局作用域构造时候完成定义和赋值，但是匿名函数是没有名字的函数变量，但是在定义匿名函数时候它会返回自己的内存地址，如果此时有个变量接收了这个内存地址，那么匿名函数就能在程序里被使用了，因为匿名函数也是在全局执行环境构造时候定义和赋值，所以匿名函数的this指向也是window对象，所以上面代码执行时候ftn04的this也是指向window，因为javascript变量名称不管在那个作用域有效，堆区的存储的函数都是在全局执行环境时候就被固定下来了，变量的名字只是一个指代而已。</strong></p>
+<p>这下子坏了，this都指向window，那我们到底怎么才能改变它了？</p>
+<p>在本文开头我说出了this的秘密，<strong>this都是指向实例化对象，</strong>前面讲到那么多情况this都指向window，就是因为这些时候只做了一次实例化操作，而这个实例化都是在实例化window对象，所以this都是指向window。我们要把this从window变成别的对象，就得要让function被实例化，那如何让javascript的function实例化呢？答案就是使用<strong>new</strong>操作符。我们看看下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> obj = &#123;</div><div class="line">    <span class="attr">name</span>:<span class="string">"sharpxiajun"</span>,</div><div class="line">    <span class="attr">job</span>:<span class="string">"Software"</span>,</div><div class="line">    <span class="attr">show</span>:<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">"Name:"</span> + <span class="keyword">this</span>.name + <span class="string">";Job:"</span> + <span class="keyword">this</span>.job);</div><div class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>);<span class="comment">// Object &#123; name="sharpxiajun", job="Software", show=function()&#125;</span></div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"><span class="keyword">var</span> otherObj = <span class="keyword">new</span> <span class="built_in">Object</span>();</div><div class="line">otherObj.name = <span class="string">"xtq"</span>;</div><div class="line">otherObj.job = <span class="string">"good"</span>;</div><div class="line">otherObj.show = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"Name:"</span> + <span class="keyword">this</span>.name + <span class="string">";Job:"</span> + <span class="keyword">this</span>.job);</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>);<span class="comment">// Object &#123; name="xtq", job="good", show=function()&#125;</span></div><div class="line">&#125;;</div><div class="line">obj.show();<span class="comment">//Name:sharpxiajun;Job:Software</span></div><div class="line">otherObj.show();<span class="comment">//Name:xtq;Job:good</span></div></pre></td></tr></table></figure>
+<p>这是我上篇讲到的关于this使用的一个例子，写法一是我们大伙都爱写的一种写法，里面的this指针不是指向window的，而是指向Object的实例，firebug的显示让很多人疑惑，其实Object就是面向对象的类，大括号里就是实例对象了，即obj和otherObj。Javascript里通过字面量方式定义对象的方式是new Object的简写，二者是等价的，目的是为了减少代码的书写量，可见即使不用new操作字面量定义法本质也是new操作符，所以通过new改变this指针的确是不过攻破的真理。</p>
+<p>下面我使用javascript来重写本篇开头用java定义的类，代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">name,sex,age,job</span>)</span>&#123;</div><div class="line">    <span class="keyword">this</span>.name = name;</div><div class="line">    <span class="keyword">this</span>.sex = sex;</div><div class="line">    <span class="keyword">this</span>.age = age;</div><div class="line">    <span class="keyword">this</span>.job = job;</div><div class="line">    <span class="keyword">this</span>.showPerson = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">"姓名:"</span> + <span class="keyword">this</span>.name);</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">"性别:"</span> + <span class="keyword">this</span>.sex);</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">"年龄:"</span> + <span class="keyword">this</span>.age);</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">"工作:"</span> + <span class="keyword">this</span>.job);</div><div class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>);<span class="comment">// Person &#123; name="马云", sex="男", age=46, 更多...&#125;</span></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> person = <span class="keyword">new</span> Person(<span class="string">"马云"</span>, <span class="string">"男"</span>, <span class="number">46</span>, <span class="string">"董事长"</span>);</div><div class="line">person.showPerson();</div></pre></td></tr></table></figure>
+<p>看this指针的打印，类变成了Person，这表明function Person就是相当于在定义一个类，在javascript里function的意义实在太多，<strong>function既是函数又可以表示对象，function是函数时候还能当做构造函数，javascript的构造函数我常认为是把类和构造函数合二为一，当然在javascript语言规范里是没有类的概念，但是我这种理解可以作为构造函数和普通函数的一个区别，这样理解起来会更加容易些。</strong></p>
+<p>下面我贴出在《javascript高级编程》里对new操作符的解释：</p>
+<p><strong>new操作符会让构造函数产生如下变化：</strong></p>
+<p><strong>1. 创建一个新对象；</strong></p>
+<p><strong>2. 将构造函数的作用域赋给新对象（因此this就指向了这个新对象）；</strong></p>
+<p><strong>3. 执行构造函数中的代码（为这个新对象添加属性）；</strong></p>
+<p><strong>4. 返回新对象</strong></p>
+<p>关于第二点其实很容易让人迷惑，例如前面例子里的obj和otherObj，obj.show()，里面this指向obj，我以前文章讲到一个简单识别this方式就是看方法调用前的对象是哪个this就指向哪个，其实这个过程还可以这么理解，在全局执行环境里window就是上下文对象，那么在obj里局部作用域通过obj来代表了，这个window的理解是一致的。</p>
+<p>第四点也要着重讲下，记住构造函数被new操作，要让new正常作用最好不能在构造函数里写return，没有return的构造函数都是按上面四点执行，有了return情况就复杂了，这个知识我会在讲prototype时候讲到。</p>
+<p>Javascript还有一种方式可以改变this指针，这就是call方法和apply方法，call和apply方法的作用相同，就是参数不同，call和apply的第一个参数都是一样的，但是后面参数不同，apply第二个参数是个数组，call从第二个参数开始后面有许多参数。Call和apply的作用是什么，这个很重要，重点描述如下：</p>
+<p><strong>Call和apply是改变函数的作用域（有些书里叫做改变函数的上下文）</strong></p>
+<p>这个说明我们参见上面new操作符第二条：</p>
+<p><strong>将构造函数的作用域赋给新对象（因此this就指向了这个新对象）；</strong></p>
+<p><strong>Call和apply是将this指针指向方法的第一个参数。</strong></p>
+<p>我们看看下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> name = <span class="string">"sharpxiajun"</span>;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">ftn</span>(<span class="params">name</span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(name);</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name);</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>);</div><div class="line">&#125;</div><div class="line">ftn(<span class="string">"101"</span>);</div><div class="line"><span class="keyword">var</span> obj = &#123;</div><div class="line">    <span class="attr">name</span>:<span class="string">"xtq"</span></div><div class="line">&#125;;</div><div class="line">ftn.call(obj,<span class="string">"102"</span>);</div></pre></td></tr></table></figure>
+<p>结果如下所示：<br>    101<br>    sharpxiajun<br>    Window<br>    102<br>    xtq<br>    Object { name=”xtq”}</p>
+<p>我们看到apply和call改变的是this的指向，这点在开发里很重要，开发里我们常常被this所迷惑，迷惑的根本原因我在上文讲到了，这里我讲讲表面的原因：</p>
+<p><strong>表面原因就是我们定义对象使用对象的字面表示法，字面表示法在简单的表示里我们很容易知道this指向对象本身，但是这个对象会有方法，方法的参数可能会是函数，而这个函数的定义里也可能会使用this指针，如果传入的函数没有被实例化过和被实例化过，this的指向是不同，有时我们还想在传入函数里通过this指向外部函数或者指向被定义对象本身，这些乱七八糟的情况使用交织在一起导致this变得很复杂，结果就变得糊里糊涂。</strong></p>
+<p>其实理清上面情况也是有迹可循的，就以定义对象里的方法里传入函数为例：</p>
+<p><strong>情形一：传入的参数是函数的别名，那么函数的this就是指向window；</strong></p>
+<p><strong>情形二：传入的参数是被new过的构造函数，那么this就是指向实例化的对象本身；</strong></p>
+<p><strong>情形三：如果我们想把被传入的函数对象里this的指针指向外部字面量定义的对象，那么我们就是用apply和call</strong></p>
+<p>我们可以通过代码看出我的结论，代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> name = <span class="string">"I am window"</span>;</div><div class="line"><span class="keyword">var</span> obj = &#123;</div><div class="line">    <span class="attr">name</span>:<span class="string">"sharpxiajun"</span>,</div><div class="line">    <span class="attr">job</span>:<span class="string">"Software"</span>,</div><div class="line">    <span class="attr">ftn01</span>:<span class="function"><span class="keyword">function</span>(<span class="params">obj</span>)</span>&#123;</div><div class="line">        obj.show();</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">ftn02</span>:<span class="function"><span class="keyword">function</span>(<span class="params">ftn</span>)</span>&#123;</div><div class="line">        ftn();</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">ftn03</span>:<span class="function"><span class="keyword">function</span>(<span class="params">ftn</span>)</span>&#123;</div><div class="line">        ftn.call(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">name</span>)</span>&#123;</div><div class="line">    <span class="keyword">this</span>.name = name;</div><div class="line">    <span class="keyword">this</span>.show = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">"姓名:"</span> + <span class="keyword">this</span>.name);</div><div class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> p = <span class="keyword">new</span> Person(<span class="string">"Person"</span>);</div><div class="line">obj.ftn01(p);</div><div class="line">obj.ftn02(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">   <span class="built_in">console</span>.log(<span class="keyword">this</span>.name);</div><div class="line">   <span class="built_in">console</span>.log(<span class="keyword">this</span>);</div><div class="line">&#125;);</div><div class="line">obj.ftn03(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name);</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<p><img src="/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/2.jpg" alt="2"></p>
+<p>最后再总结一下：</p>
+<p><strong>如果在javascript语言里没有通过new（包括对象字面量定义）、call和apply改变函数的this指针，函数的this指针都是指向window的。</strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/13/谈谈javascript语法里一些难点问题（二）/" rel="prev" title="谈谈javascript语法里一些难点问题（二）">
+                谈谈javascript语法里一些难点问题（二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpg"
+               alt="m" />
+          <p class="site-author-name" itemprop="name">m</p>
+           
+              <p class="site-description motion-element" itemprop="description">双手扶着后腰，双眼透着贫穷</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">m</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
