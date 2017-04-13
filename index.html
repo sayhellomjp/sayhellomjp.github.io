@@ -260,6 +260,167 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/13/js实现观察者模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="m">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="M'S BLOG">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/13/js实现观察者模式/" itemprop="url">
+                  js实现观察者模式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-13T17:22:21+08:00">
+                2017-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>js实现观察者模式<br>　　观察者模式：设计该模式背后的主要动力是促进形成松散耦合。在这种模式中，并不是一个对象调用另一个对象的方法，而是一个对象订阅另一个对象的特定活动并在状态改变后获得通知。订阅者也称为观察者，而补观察的对象称为发布者或主题。当发生了一个重要的事件时，发布者将会通知（调用）所有订阅者并且可能经常以事件对象的形式传递消息。</p>
+<p>　　思路:发布者对象需要一个数组类型的属性，以存储所有的订阅者。订阅（即注册）行为就是将新的订阅者加入到这个数组中去，则注销即是从这个数组中删除某个订阅者。此外，发布消息，就是循环遍历订阅者列表并通知他们。</p>
+<p>　　</p>
+<p>　　这里我的大体思路是对的，但是在发布者之外定义了一个新的类即订阅者。在订阅者中定义了一个方法getNews以便在发布者发布消息时调用该方法。然后面试官说这样太麻烦了，万一订阅者没有这个方法呢？然后我不是很懂……于是在发布消息时直接传递了参数：obj.news = msg; 然后面试官说这样不是更麻烦了吗？这样的话如果订阅者没有news这个属性怎么办？还得判断订阅者是否有news这个属性，没有的话就会出现undifined的报错。然后我就不知道该怎么做了……然后面试官为人特别nice，告诉我说可以用继承，或者是在注册时候就传入一个function。</p>
+<p>下来后上网查相关，注意点如下：</p>
+<ol>
+<li><p>发送消息即通知，意味着调用订阅者对象的某个方法。故当用户订阅信息时，该订阅者需要向paper的subscribe()提供它的其中一个方法。——–这应该就是面试官所说的注册时候就传入一个方法。</p>
+</li>
+<li><p>发布对象paper需要具有以下成员：</p>
+</li>
+</ol>
+<p>　　　　a、 subscribers：一个数组，存储订阅者</p>
+<p>　　　　b、 subscribe()：注册/订阅，将订阅者添加到subscribers数组中</p>
+<p>　　　　c、 unsubscribe()： 取消订阅。从subscribers数组中删除订阅者</p>
+<p>　　　　d、 publish() 循环遍历subscribers数组中的每一个元素，并且调用他们注册时所提供的方法</p>
+<p>　　　　所有这三种方法都需要一个type参数，因为发布者可能触发多个事件（比如同时发布一本杂志和一份报纸）而用户可能仅选择订阅其中一种，而不是另外一种。</p>
+<p>代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//由于这些成员对于任何发布者对象都是通用的，故将它们作为独立对象的一个部分来实现是很有意义的。那样我们可将其复制到任何对象中，并将任意给定对象变成一个发布者。</span></div><div class="line"></div><div class="line"><span class="comment">//如下实现一个通用发布者</span></div><div class="line"></div><div class="line"><span class="comment">//定义发布者对象...&#123;&#125;是定义一个对象</span></div><div class="line"><span class="keyword">var</span> publisher = &#123;</div><div class="line">    <span class="attr">subscribers</span>: &#123;</div><div class="line">        <span class="attr">any</span>: []         <span class="comment">//event type: subscribers</span></div><div class="line">    &#125;,</div><div class="line">    <span class="attr">subscribe</span>: <span class="function"><span class="keyword">function</span>(<span class="params">fn,type</span>)</span>&#123;</div><div class="line">        type = type || <span class="string">'any'</span>;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">typeof</span> <span class="keyword">this</span>.subscribers[type] === <span class="string">"undefined"</span>)&#123;</div><div class="line">            <span class="keyword">this</span>.subscribers[type] = [];</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">this</span>.subscribers[type].push(fn);</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">unsubscribe</span>: <span class="function"><span class="keyword">function</span>(<span class="params">fn,type</span>)</span>&#123;</div><div class="line">        <span class="keyword">this</span>.visitSubscribers(<span class="string">'unsubscribe'</span>, fn, type);</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">publish</span>: <span class="function"><span class="keyword">function</span>(<span class="params">publication, type</span>)</span>&#123;</div><div class="line">        <span class="keyword">this</span>.visitSubscribers(<span class="string">'publish'</span>,publication,type);</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">visitSubscribers</span>:<span class="function"><span class="keyword">function</span>(<span class="params">action,arg,type</span>)</span>&#123;</div><div class="line">        <span class="keyword">var</span> pubtype = type ||<span class="string">'any'</span>,</div><div class="line">            subscribers = <span class="keyword">this</span>.subscribers[pubtype],</div><div class="line">            i,</div><div class="line">            max = subscribers.length;</div><div class="line">        <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;max;i++)&#123;</div><div class="line">            <span class="keyword">if</span>(action == <span class="string">"publish"</span>)&#123;</div><div class="line">                subscribers[i](arg);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">if</span>(subscribers[i] === arg)&#123;</div><div class="line">                    subscribers.splice(i,<span class="number">1</span>);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//定义一个函数makePublisher()，它接受一个对象作为对象，通过把上述通用发布者的方法复制到该对象中，从而将其转换为一个发布者</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">makePublisher</span>(<span class="params">o</span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> i;</div><div class="line">    <span class="keyword">for</span>(i <span class="keyword">in</span> publisher) &#123;</div><div class="line">        <span class="keyword">if</span>(publisher.hasOwnProperty(i) &amp;&amp; <span class="keyword">typeof</span> publisher[i] === <span class="string">"function"</span>)&#123;</div><div class="line">            o[i] = publisher[i];</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    o.subscribers = &#123;<span class="attr">any</span>: []&#125;;</div><div class="line">&#125;</div><div class="line"><span class="comment">//实现paper对象</span></div><div class="line"><span class="keyword">var</span> paper = &#123;</div><div class="line">    <span class="attr">daily</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="keyword">this</span>.publish(<span class="string">"big news today"</span>);</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">monthly</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="keyword">this</span>.publish(<span class="string">"interesting analysis"</span>,<span class="string">"monthly"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//将paper构造成一个发布者</span></div><div class="line">makePublisher(paper);</div><div class="line"><span class="comment">//已经有了一个发布者。看看订阅对象joe，该对象有两个方法：</span></div><div class="line"><span class="keyword">var</span> joe = &#123;</div><div class="line">    <span class="attr">drinkCoffee</span>: <span class="function"><span class="keyword">function</span>(<span class="params">paper</span>) </span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">'Just read'</span> + paper);</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">sundayPreNap</span> : <span class="function"><span class="keyword">function</span>(<span class="params">monthly</span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">'About to fall asleep reading this'</span> + monthly);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//paper注册joe（即joe向paper订阅）</span></div><div class="line">paper.subscribe(joe.drinkCoffee);</div><div class="line">paper.subscribe(joe.sundayPreNap,<span class="string">'monthly'</span>);</div><div class="line"><span class="comment">//即joe为默认“any”事件提供了一个可被调用的方法，而另一个可被调用的方法则用于当“monthly”类型的事件发生时的情况。现在让我们来触发一些事件：</span></div><div class="line">paper.daily();      <span class="comment">//Just readbig news today</span></div><div class="line">paper.daily();      <span class="comment">//Just readbig news today</span></div><div class="line">paper.monthly();    <span class="comment">//About to fall asleep reading thisinteresting analysis</span></div><div class="line">paper.monthly();    <span class="comment">//About to fall asleep reading thisinteresting analysis</span></div><div class="line">paper.monthly();</div></pre></td></tr></table></figure>
+<p>试着用函数实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Publisher</span>(<span class="params">subscribers</span>)</span>&#123;</div><div class="line">    <span class="keyword">this</span>.subscribers = subscribers || &#123;<span class="string">'any'</span>: []&#125;;</div><div class="line">    Publisher.prototype.subscribe = <span class="function"><span class="keyword">function</span>(<span class="params">fn, type</span>)</span>&#123;</div><div class="line">        <span class="keyword">var</span> type = type || <span class="string">'any'</span>;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">typeof</span> <span class="keyword">this</span>.subscribers[type] === <span class="string">'undefined'</span>)&#123;</div><div class="line">            <span class="keyword">this</span>.subscribers[type] = [];</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">this</span>.subscribers[type].push(fn);</div><div class="line">    &#125;;</div><div class="line">    Publisher.prototype.unsubscribe = <span class="function"><span class="keyword">function</span>(<span class="params">fn, type</span>)</span>&#123;</div><div class="line">        <span class="keyword">var</span> type = type || <span class="string">'any'</span>;</div><div class="line">        <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>, len = <span class="keyword">this</span>.subscribers[type].length;  i&lt;len; i++)&#123;</div><div class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.subscribers[type][i] === fn)&#123;</div><div class="line">                <span class="keyword">this</span>.subscribers[type].splice(i,<span class="number">1</span>);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    Publisher.prototype.publish = <span class="function"><span class="keyword">function</span>(<span class="params">publication, type</span>)</span>&#123;</div><div class="line">        <span class="keyword">var</span> type = type || <span class="string">'any'</span>;</div><div class="line">        <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>, len = <span class="keyword">this</span>.subscribers[type].length; i&lt;len; i++)&#123;</div><div class="line">            <span class="keyword">this</span>.subscribers[type][i](publication);</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">var</span> paper = <span class="keyword">new</span> Publisher();</div><div class="line">paper.daily = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">this</span>.publish(<span class="string">' this is Olympic ! '</span>);</div><div class="line">&#125;;</div><div class="line">paper.monthly = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">this</span>.publish(<span class="string">' last month is the 28th Olympic! '</span>, <span class="string">'monthly'</span>);</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">var</span> Jack = &#123;</div><div class="line">    <span class="attr">readInMorning</span>: <span class="function"><span class="keyword">function</span>(<span class="params">news</span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">'Jack reads '</span> + news + <span class="string">' in the morning'</span>);</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">readInSunday</span>: <span class="function"><span class="keyword">function</span>(<span class="params">news</span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">'Jack reads '</span> + news + <span class="string">' on Sunday'</span>);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">var</span> Amy = &#123;</div><div class="line">    <span class="attr">readInMorning</span>: <span class="function"><span class="keyword">function</span>(<span class="params">news</span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">'Amy reads '</span> + news + <span class="string">' in the morning'</span>);</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">readInSunday</span>: <span class="function"><span class="keyword">function</span>(<span class="params">news</span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">'Amy reads '</span> + news + <span class="string">' on Sunday'</span>);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">paper.subscribe(Jack.readInMorning);</div><div class="line">paper.subscribe(Jack.readInSunday, <span class="string">'monthly'</span>);</div><div class="line">paper.subscribe(Amy.readInMorning);</div><div class="line">paper.subscribe(Amy.readInSunday, <span class="string">'monthly'</span>);</div><div class="line"></div><div class="line">paper.daily();          <span class="comment">//Jack reads  this is Olympic !  in the morning</span></div><div class="line">                        <span class="comment">//Amy reads  this is Olympic !  in the morning</span></div><div class="line">paper.monthly();        <span class="comment">//Jack reads  last month is the 28th Olympic!  on Sunday</span></div><div class="line">                        <span class="comment">//Amy reads  last month is the 28th Olympic!  on Sunday</span></div><div class="line"></div><div class="line">paper.unsubscribe(Jack.readInSunday,<span class="string">'monthly'</span>);</div><div class="line">paper.daily();              <span class="comment">//Jack reads  this is Olympic !  in the morning</span></div><div class="line">                            <span class="comment">//Amy reads  this is Olympic !  in the morning</span></div><div class="line">paper.monthly();            <span class="comment">//Amy reads  last month is the 28th Olympic!  on Sunday</span></div></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/13/javascript技术难点（三）之this、new、apply和call详解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -915,7 +1076,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -937,7 +1098,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
