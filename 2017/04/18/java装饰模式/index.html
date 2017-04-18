@@ -1,0 +1,775 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,设计模式," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="1 概述在一个项目中，你会有非常多的因素考虑不到，特别是业务的变更，不时的冒出一个需求是很正常的情况。有三个继承关系的类：Father、Son、GrandSon，我们要在Son类上增强一些功能怎么办？给Son类增加方法吗？那对GrandSon的影响呢？特别是对GrandSon有多个的情况，你会怎么办？认真看完本文，你会找到你的答案。JavaIO中，像下面的嵌套语句是不是很常见，为什么要怎样定义呢？">
+<meta name="keywords" content="Java,设计模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java装饰模式">
+<meta property="og:url" content="http://yoursite.com/2017/04/18/java装饰模式/index.html">
+<meta property="og:site_name" content="M'S BLOG">
+<meta property="og:description" content="1 概述在一个项目中，你会有非常多的因素考虑不到，特别是业务的变更，不时的冒出一个需求是很正常的情况。有三个继承关系的类：Father、Son、GrandSon，我们要在Son类上增强一些功能怎么办？给Son类增加方法吗？那对GrandSon的影响呢？特别是对GrandSon有多个的情况，你会怎么办？认真看完本文，你会找到你的答案。JavaIO中，像下面的嵌套语句是不是很常见，为什么要怎样定义呢？">
+<meta property="og:image" content="http://yoursite.com/2017/04/18/java装饰模式/1.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/04/18/java装饰模式/2.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/04/18/java装饰模式/3.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/04/18/java装饰模式/4.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/04/18/java装饰模式/5.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/04/18/java装饰模式/6.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/04/18/java装饰模式/7.jpg">
+<meta property="og:updated_time" content="2017-04-18T09:09:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java装饰模式">
+<meta name="twitter:description" content="1 概述在一个项目中，你会有非常多的因素考虑不到，特别是业务的变更，不时的冒出一个需求是很正常的情况。有三个继承关系的类：Father、Son、GrandSon，我们要在Son类上增强一些功能怎么办？给Son类增加方法吗？那对GrandSon的影响呢？特别是对GrandSon有多个的情况，你会怎么办？认真看完本文，你会找到你的答案。JavaIO中，像下面的嵌套语句是不是很常见，为什么要怎样定义呢？">
+<meta name="twitter:image" content="http://yoursite.com/2017/04/18/java装饰模式/1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/18/java装饰模式/"/>
+
+
+
+
+
+  <title> java装饰模式 | M'S BLOG </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">M'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/18/java装饰模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="m">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="M'S BLOG">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                java装饰模式
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-18T16:46:30+08:00">
+                2017-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h2><p>在一个项目中，你会有非常多的因素考虑不到，特别是业务的变更，不时的冒出一个需求是很正常的情况。有三个继承关系的类：Father、Son、GrandSon，我们要在Son类上增强一些功能怎么办？给Son类增加方法吗？那对GrandSon的影响呢？特别是对GrandSon有多个的情况，你会怎么办？认真看完本文，你会找到你的答案。<br>JavaIO中，像下面的嵌套语句是不是很常见，为什么要怎样定义呢？理解装饰模式后，你会找到答案。<br>DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(“FileTest.Java”)));</p>
+<h2 id="2-《设计模式之禅》中的例子"><a href="#2-《设计模式之禅》中的例子" class="headerlink" title="2 《设计模式之禅》中的例子"></a>2 《设计模式之禅》中的例子</h2><p>成绩单需要父母签名这事很多人都经历过，这举这样一个例子：</p>
+<p><img src="/2017/04/18/java装饰模式/1.jpg" alt="1"></p>
+<p>代码清单1 抽象成绩单</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//抽象成绩单  </span></div><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">SchoolReport</span> </span>&#123;  </div><div class="line">    <span class="comment">//展示成绩情况  </span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">report</span><span class="params">()</span></span>;  </div><div class="line">    <span class="comment">//家长签字  </span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">sign</span><span class="params">(String name)</span></span>;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>代码清单2 四年级成绩单</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//四年级成绩单  </span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FouthGradeSchoolReport</span> <span class="keyword">extends</span> <span class="title">SchoolReport</span></span>&#123;  </div><div class="line">    <span class="comment">//我的成绩单  </span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">report</span><span class="params">()</span></span>&#123;  </div><div class="line">        <span class="comment">//成绩单的格式是这个样子的  </span></div><div class="line">        System.out.println(<span class="string">"尊敬的XXX家长："</span>);  </div><div class="line">        System.out.println(<span class="string">"······"</span>);  </div><div class="line">        System.out.println(<span class="string">"语文62 数学65 体育98 自然63"</span>);  </div><div class="line">        System.out.println(<span class="string">"······"</span>);  </div><div class="line">        System.out.println(<span class="string">"      家长签字"</span>);  </div><div class="line">    &#125;  </div><div class="line">    <span class="comment">//家长签名  </span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sign</span><span class="params">(String name)</span></span>&#123;  </div><div class="line">        System.out.println(<span class="string">"家长签字为："</span> + name);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>代码清单3 老爸查看成绩单</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//老爸查看成绩单  </span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Father</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </div><div class="line">        <span class="comment">//把成绩单拿过来  </span></div><div class="line">        SchoolReport sr = <span class="keyword">new</span> FouthGradeSchoolReport();  </div><div class="line">        <span class="comment">//看成绩单  </span></div><div class="line">        sr.report();  </div><div class="line">        <span class="comment">//签名？ 休想！  </span></div><div class="line">    &#125;  </div><div class="line">&#125;  </div><div class="line"><span class="comment">/*Output: </span></div><div class="line">尊敬的XXX家长： </div><div class="line">······ </div><div class="line">语文62 数学65 体育98 自然63 </div><div class="line">······ </div><div class="line">      家长签字 </div><div class="line"> */  </div></pre></td></tr></table></figure>
+<p>就这成绩还要我签字？！老爸就开始找扫帚，我开始做准备：深呼吸，绷紧肌肉，提臀，收腹。 哈哈，幸运的是，这个不是当时的真实情况，我没有直接把成绩单交给老爸，而是在交给他之前做了点技术工作，我要把成绩单封装一下，封装分类两步来实现， 如下所示。<br>● 汇报最高成绩<br>跟老爸说各个科目的最高分，语文最高是75，数学是78，自然是80，然后老爸觉得我的成绩与最高分数相差不多，考的还是不错的嘛！这个是实情，但是不知道是什么原因，反正期末考试都考得不怎么样，但是基本上都集中在70分以上，我这60多分基本上还是垫底的角色。<br>● 汇报排名情况<br>在老爸看完成绩单后，告诉他我在全班排第38名，这个也是实情，为啥呢？有将近十个同学退学了！ 这个情况我是不会说的。 不知道是不是当时第一次发成绩单时学校没有考虑清楚，没有写上总共有多少同学，排第几名，反正是被我钻了个空子。<br>那修饰是说完了，我们看看类图如何修改，如下图所示：</p>
+<p><img src="/2017/04/18/java装饰模式/2.jpg" alt="2"></p>
+<p>代码清单4 修饰成绩单</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//修饰成绩单  </span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SugarFouthGradeSchoolReport</span> <span class="keyword">extends</span> <span class="title">FouthGradeSchoolReport</span> </span>&#123;  </div><div class="line">    <span class="comment">// 首先要定义你要美化的方法， 先给老爸说学校最高成绩  </span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">reportHighScore</span><span class="params">()</span> </span>&#123;  </div><div class="line">        System.out.println(<span class="string">"这次考试语文最高是75， 数学是78， 自然是80"</span>);  </div><div class="line">    &#125;<span class="comment">// 在老爸看完毕成绩单后，我再汇报学校的排名情况  </span></div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">reportSort</span><span class="params">()</span> </span>&#123;  </div><div class="line">        System.out.println(<span class="string">"我是排名第38名..."</span>);  </div><div class="line">    &#125;<span class="comment">// 由于汇报的内容已经发生变更，那所以要重写父类  </span></div><div class="line">  </div><div class="line">    <span class="meta">@Override</span>  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">report</span><span class="params">()</span> </span>&#123;  </div><div class="line">        <span class="keyword">this</span>.reportHighScore(); <span class="comment">// 先说最高成绩  </span></div><div class="line">        <span class="keyword">super</span>.report(); <span class="comment">// 然后老爸看成绩单  </span></div><div class="line">        <span class="keyword">this</span>.reportSort(); <span class="comment">// 然后告诉老爸学习学校排名  </span></div><div class="line">    &#125;  </div><div class="line">&#125;  </div></pre></td></tr></table></figure>
+<p>代码清单5 老爸查看修饰后的成绩单</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Father2</span> </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </div><div class="line">        <span class="comment">// 把美化过的成绩单拿过来  </span></div><div class="line">        SchoolReport sr = <span class="keyword">new</span> SugarFouthGradeSchoolReport();  </div><div class="line">        <span class="comment">// 看成绩单  </span></div><div class="line">        sr.report();  </div><div class="line">        <span class="comment">// 然后老爸， 一看， 很开心， 就签名了  </span></div><div class="line">        sr.sign(<span class="string">"老三"</span>); <span class="comment">// 我叫小三， 老爸当然叫老三  </span></div><div class="line">    &#125;  </div><div class="line">&#125;  </div><div class="line"><span class="comment">/* </span></div><div class="line">这次考试语文最高是75， 数学是78， 自然是80 </div><div class="line">尊敬的XXX家长： </div><div class="line">······ </div><div class="line">语文62 数学65 体育98 自然63 </div><div class="line">······ </div><div class="line">      家长签字 </div><div class="line">我是排名第38名... </div><div class="line">家长签字为：老三 </div><div class="line"> * */ </div></pre></td></tr></table></figure>
+<p>通过继承确实能够解决这个问题，老爸看成绩单很开心，然后就给签字了，但现实的情况是很复杂的，可能老爸听我汇报最高成绩后，就直接乐开花了，直接签名了，后面的排名就没必要看了，或者老爸要先看排名情况，那怎么办？ 继续扩展？你能扩展多少个类？这还是一个比较简单的场景，一旦需要装饰的条件非常多，比如20个，你还通过继承来解决，你想象的子类有多少个？ 你是不是马上就要崩溃了！<br>好，你也看到通过继承情况确实出现了问题，类爆炸，类的数量激增，光写这些类不累死你才怪，而且还要想想以后维护怎么办，谁愿意接收这么一大摊本质相似的代码维护工作？并且在面向对象的设计中，如果超过两层继承，你就应该想想是不是出设计问题了，是不是应该重新找一条康庄大道了，这是经验值，不是什么绝对的，继承层次越多以后的维护成本越多，问题这么多，那怎么办？好办，我们定义一批专门负责装饰的类，然后根据实际情况来决定是否需要进行装饰，类图稍做修正，如图17-4所示。</p>
+<p><img src="/2017/04/18/java装饰模式/3.jpg" alt="3"></p>
+<p>增加一个抽象类和两个实现类，其中Decorator的作用是封装SchoolReport类，如果大家还记得代理模式，那么很容易看懂这个类图，装饰类的作用也就是一个特殊的代理类，真实的执行者还是被代理的角色FouthGradeSchoolReport。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 抽象类，也是最核心的顶层对象</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">SchoolReport</span> </span>&#123;</div><div class="line">    <span class="comment">// 报告成绩</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">report</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">// 家长签字</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">sign</span><span class="params">(String name)</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 最核心、最原始、最基本的接口或抽象类的实现，你要装饰的就是它</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreateSchoolReport</span> <span class="keyword">extends</span> <span class="title">SchoolReport</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">report</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"报告家长，您的孩子成绩不及格"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sign</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"家长签名："</span> + name);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 装饰的抽象类，这是一个特殊的代理类（代理模式），具体执行的方法还是由传入进来的SchoolReport(具体实现类)决定</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Decorator</span> <span class="keyword">extends</span> <span class="title">SchoolReport</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> SchoolReport schoolReport;</div><div class="line"></div><div class="line">    <span class="comment">// 构造函数，传递SchoolReport对象并保存在私有属性中</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Decorator</span><span class="params">(SchoolReport schoolReport)</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.schoolReport = schoolReport;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 具体执行的report方法由传进来的SchoolReport决定</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">report</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.schoolReport.report();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sign</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.schoolReport.sign(name);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 具体的装饰类，就是由他进行对象的装饰</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HighScoreDecorator</span> <span class="keyword">extends</span> <span class="title">Decorator</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">// 由于父类显示的定义了构造方法，这里也必须显示定义</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HighScoreDecorator</span><span class="params">(SchoolReport schoolReport)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(schoolReport);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 自定义的修饰方法，此方法用于修饰具体的SchoolReport对象ConcreateSchoolReport</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">highCore</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"其实大家都不及格，你儿子分算高的"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//重写report方法，将自定义方法放在父类的report方法执行之前执行，用于修饰</span></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">report</span><span class="params">()</span> </span>&#123;</div><div class="line">        highCore();</div><div class="line">        <span class="keyword">super</span>.report();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderSchoolReport</span> <span class="keyword">extends</span> <span class="title">Decorator</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">// 由于父类显示的定义了构造方法，这里也必须显示定义</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">OrderSchoolReport</span><span class="params">(SchoolReport schoolReport)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(schoolReport);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 自定义的修饰方法，此方法用于修饰具体的SchoolReport对象ConcreateSchoolReport</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">order</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"而且你儿子的分数排名全班第一"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//重写report方法，将自定义方法放在父类的report方法执行之前执行，用于修饰</span></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">report</span><span class="params">()</span> </span>&#123;</div><div class="line">        order();</div><div class="line">        <span class="keyword">super</span>.report();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 客户端调用</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        SchoolReport report = <span class="keyword">new</span> ConcreateSchoolReport();</div><div class="line">        report = <span class="keyword">new</span> HighScoreDecorator(report);</div><div class="line">        report = <span class="keyword">new</span> OrderSchoolReport(report);</div><div class="line">        report.report();</div><div class="line">        report.sign(<span class="string">"NB"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="3-装饰模式的定义"><a href="#3-装饰模式的定义" class="headerlink" title="3 装饰模式的定义"></a>3 装饰模式的定义</h2><p>装饰模式（Decorator Pattern）是一种比较常见的模式，其定义如下：Attach additionalresponsibilities to an object dynamically keeping the same interface.Decoratorsprovide a flexible alternative to subclassing for extending functionality.（ 动态地给一个对象添加一些额外的职责。就增加功能来说，装饰模式相比生成子类更为灵活。）<br>装饰模式的通用类图如图5所示。</p>
+<p><img src="/2017/04/18/java装饰模式/4.jpg" alt="4"></p>
+<p>在类图中，有四个角色需要说明：<br><strong>● Component抽象构件</strong><br>Component是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象，如上面的成绩单。<br>注意 在装饰模式中，必然有一个最基本、最核心、最原始的接口或抽象类充当Component抽象构件。<br><strong>● ConcreteComponent 具体构件</strong><br>ConcreteComponent是最核心、最原始、最基本的接口或抽象类的实现，你要装饰的就是它。<br><strong>● Decorator装饰角色</strong><br>一般是一个抽象类，做什么用呢？实现接口或者抽象方法，它里面可不一定有抽象的方法呀，在它的属性里必然有一个private变量指向Component抽象构件。<br><strong>● 具体装饰角色</strong><br>ConcreteDecoratorA和ConcreteDecoratorB是两个具体的装饰类，你要把你最核心的、最原始的、最基本的东西装饰成其他东西，上面的例子就是把一个比较平庸的成绩单装饰成家长认可的成绩单。</p>
+<p>理解client中的new</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="comment">//这里创建了一个ConcreateComponent对象，返回对象的引用component</span></div><div class="line">        Component component = <span class="keyword">new</span> ConcreateComponent();</div><div class="line"></div><div class="line">        <span class="comment">//这里将上述对象传入ConcreateDecoratorA中，通过其构造方法将component传入到Decorato中</span></div><div class="line">        <span class="comment">//对象：一个Decorato对象，其中私有属性component保存为ConcreateComponent</span></div><div class="line">        <span class="comment">//     一个ConcreateDecoratorA对象component</span></div><div class="line">        component = <span class="keyword">new</span> ConcreateDecoratorA(component);</div><div class="line"></div><div class="line">        <span class="comment">//这里将ConcreateDecoratorA传入ConcreateDecoratorB中，通过其构造方法将其传入到Decorato中</span></div><div class="line">        <span class="comment">//对象：一个Decorato对象，其中私有属性component保存为ConcreateDecoratorA</span></div><div class="line">        <span class="comment">//     一个ConcreateDecoratorB对象component</span></div><div class="line">        component = <span class="keyword">new</span> ConcreateDecoratorB(component);</div><div class="line"></div><div class="line">        <span class="comment">//先执行ConcreateDecoratorB中的operate方法，再执行其父类Decorato中的operate，注意此时的Decorato方法operate会调用ConcreateDecoratorA中的operate，</span></div><div class="line">        <span class="comment">//该方法又会调用ConcreateComponent中的operate方法，故只需要在ConcreateDecoratorA、B两个修饰类的operate中加上具体修饰的方法即可完成链式的调用</span></div><div class="line">        component.operate();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="4-半透明的装饰模式"><a href="#4-半透明的装饰模式" class="headerlink" title="4 半透明的装饰模式"></a>4 半透明的装饰模式</h2><h3 id="4-1-装饰模式的简化"><a href="#4-1-装饰模式的简化" class="headerlink" title="4.1 装饰模式的简化"></a>4.1 装饰模式的简化</h3><p>如果只有一个ConcreteComponent类，那么可以考虑去掉抽象的Component类（接口），把Decorator作为一个ConcreteComponent子类。如下图所示：</p>
+<p><img src="/2017/04/18/java装饰模式/5.jpg" alt="5"></p>
+<p>如果只有一个ConcreteDecorator类，那么就没有必要建立一个单独的Decorator类，而可以把Decorator和ConcreteDecorator的责任合并成一个类。甚至在只有两个ConcreteDecorator类的情况下，都可以这样做。如下图所示</p>
+<p><img src="/2017/04/18/java装饰模式/6.jpg" alt="6"></p>
+<h3 id="4-2-透明性的要求"><a href="#4-2-透明性的要求" class="headerlink" title="4.2 透明性的要求"></a>4.2 透明性的要求</h3><p>装饰模式对客户端的透明性要求程序不要声明一个ConcreteComponent类型的变量，而应当声明一个Component类型的变量。<br>用上面成绩单的例子来说有：<br>SchoolReport sr;<br>sr = new FouthGradeSchoolReport();<br>sr = new HighScoreDecorator(sr);<br>sr = new SortDecorator(sr);<br>而下面的做法是不对的：<br>HighScoreDecorator hd = new HighScoreDecorator(sr);<br>SortDecorator sd = new SortDecorator(sr);</p>
+<h3 id="4-3-半透明的装饰模式"><a href="#4-3-半透明的装饰模式" class="headerlink" title="4.3 半透明的装饰模式"></a>4.3 半透明的装饰模式</h3><p>然而，纯粹的装饰模式很难找到。装饰模式的用意是在不改变接口的前提下，增强所考虑的类的性能。在增强性能的时候，往往需要建立新的公开的方法。上面成绩单的例子中，显示前十名学生信息。这就意味着SortDecorator类中应当有一个新的displayTopTen()方法。再比如，显示显示各科最高分学生信息，这就意味着在HighScoreDecorator类里应当有一个新的showTop()方法。<br>这就导致了大多数的装饰模式的实现都是“半透明”的，而不是完全透明的。换言之，允许装饰模式改变接口，增加新的方法。这意味着客户端可以声明ConcreteDecorator类型的变量，从而可以调用ConcreteDecorator类中才有的方法：<br>SchoolReport sr = new SortDecorator();<br>SortDecorator sd = new SortDecorator();<br>sd.displayTopTen();<br>半透明的装饰模式是介于装饰模式和适配器模式之间的。适配器模式的用意是改变所考虑的类的接口，也可以通过改写一个或几个方法，或增加新的方法来增强或改变所考虑的类的功能。大多数的装饰模式实际上是半透明的装饰模式，这样的装饰模式也称做半装饰、半适配器模式。<br>装饰模式和适配器模式都是“包装模式(Wrapper Pattern)”，它们都是通过封装其他对象达到设计的目的的，但是它们的形态有很大区别。<br>理想的装饰模式在对被装饰对象进行功能增强的同时，要求具体构件角色、装饰角色的接口与抽象构件角色的接口完全一致。而适配器模式则不然，一般而言，适配器模式并不要求对源对象的功能进行增强，但是会改变源对象的接口，以便和目标接口相符合。<br>装饰模式有透明和半透明两种，这两种的区别就在于装饰角色的接口与抽象构件角色的接口是否完全一致。透明的装饰模式也就是理想的装饰模式，要求具体构件角色、装饰角色的接口与抽象构件角色的接口完全一致。相反，如果装饰角色的接口与抽象构件角色接口不一致，也就是说装饰角色的接口比抽象构件角色的接口宽的话，装饰角色实际上已经成了一个适配器角色，这种装饰模式也是可以接受的，称为“半透明”的装饰模式，如下图所示。</p>
+<p><img src="/2017/04/18/java装饰模式/7.jpg" alt="7"></p>
+<p>在适配器模式里面，适配器类的接口通常会与目标类的接口重叠，但往往并不完全相同。换言之，适配器类的接口会比被装饰的目标类接口宽。<br>显然，半透明的装饰模式实际上就是处于适配器模式与装饰模式之间的灰色地带。如果将装饰模式与适配器模式合并成为一个“包装模式”的话，那么半透明的装饰模式倒可以成为这种合并后的“包装模式”的代表。</p>
+<h2 id="5-装饰模式应用"><a href="#5-装饰模式应用" class="headerlink" title="5 装饰模式应用"></a>5 装饰模式应用</h2><h3 id="5-1-装饰模式的优点"><a href="#5-1-装饰模式的优点" class="headerlink" title="5.1 装饰模式的优点"></a>5.1 装饰模式的优点</h3><ul>
+<li>装饰类和被装饰类可以独立发展，而不会相互耦合。换句话说，Component类无须知道Decorator类，Decorator类是从外部来扩展Component类的功能，而Decorator也不用知道具体的构件。</li>
+<li>装饰模式是继承关系的一个替代方案。我们看装饰类Decorator，不管装饰多少层，返回的对象还是Component，实现的还是is-a的关系。</li>
+<li>装饰模式与继承关系的目的都是要扩展对象的功能，但是装饰模式可以提供比继承更多的灵活性。装饰模式允许系统动态决定“贴上”一个需要的“装饰”，或者除掉一个不需要的“装饰”。继承关系则不同，继承关系是静态的，它在系统运行前就决定了。</li>
+<li>过使用不同的具体装饰类以及这些装饰类的排列组合，设计师可以创造出很多不同行为的组合。<h3 id="5-2-装饰模式的缺点"><a href="#5-2-装饰模式的缺点" class="headerlink" title="5.2 装饰模式的缺点"></a>5.2 装饰模式的缺点</h3></li>
+<li>由于使用装饰模式，可以比使用继承关系需要较少数目的类。使用较少的类，当然使设计比较易于进行。但是，在另一方面，使用装饰模式会产生比使用继承关系更多的对象。更多的对象会使得查错变得困难，特别是这些对象看上去都很相像。</li>
+<li>多层的装饰是比较复杂的。<h3 id="5-3-装饰模式的使用场景"><a href="#5-3-装饰模式的使用场景" class="headerlink" title="5.3 装饰模式的使用场景"></a>5.3 装饰模式的使用场景</h3></li>
+<li>需要扩展一个类的功能，或给一个类增加附加功能。</li>
+<li>需要动态地给一个对象增加功能，这些功能可以再动态地撤销。</li>
+<li>需要为一批的兄弟类进行改装或加装功能，当然是首选装饰模式。</li>
+<li>装饰模式在Java语言中的最著名的应用：Java I/O标准库的设计了</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/18/深入理解abstract-class和interface/" rel="next" title="深入理解abstract class和interface">
+                <i class="fa fa-chevron-left"></i> 深入理解abstract class和interface
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/17/java策略模式/" rel="prev" title="java策略模式">
+                java策略模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpg"
+               alt="m" />
+          <p class="site-author-name" itemprop="name">m</p>
+           
+              <p class="site-description motion-element" itemprop="description">双手扶着后腰，双眼透着贫穷</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-概述"><span class="nav-number">1.</span> <span class="nav-text">1 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-《设计模式之禅》中的例子"><span class="nav-number">2.</span> <span class="nav-text">2 《设计模式之禅》中的例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-装饰模式的定义"><span class="nav-number">3.</span> <span class="nav-text">3 装饰模式的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-半透明的装饰模式"><span class="nav-number">4.</span> <span class="nav-text">4 半透明的装饰模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-装饰模式的简化"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 装饰模式的简化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-透明性的要求"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 透明性的要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-半透明的装饰模式"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 半透明的装饰模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-装饰模式应用"><span class="nav-number">5.</span> <span class="nav-text">5 装饰模式应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-装饰模式的优点"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 装饰模式的优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-装饰模式的缺点"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 装饰模式的缺点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-装饰模式的使用场景"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 装饰模式的使用场景</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">m</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
